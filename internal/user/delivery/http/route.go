@@ -20,12 +20,14 @@ func RegisterRoutes(r chi.Router, db *pgxpool.Pool) {
 	loginUC := uc2.NewLoginUC(repo, jwtManager, refreshRepo)
 	refreshUC := uc2.NewTokenRefreshTokenUC(refreshRepo, jwtManager)
 	logoutUC := uc2.NewLogoutUC(refreshRepo)
+	searchUC := uc2.NewSearchUserUC(repo)
 
 	r.Route("/users", func(r chi.Router) {
 		r.Post("/register", handler.RegisterHandler(uc))
 		r.Post("/login", handler.LoginHandler(loginUC))
 		r.Post("/refresh", handler.RefreshHandler(refreshUC))
 		r.Post("/logout", handler.LogoutHandler(logoutUC))
+		r.Get("/search", handler.SearchUserHandler(searchUC))
 	})
 
 	r.Route("/health_service_check", func(r chi.Router) {
