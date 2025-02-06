@@ -5,6 +5,7 @@ import (
 	http2 "auth_sevice_microservice/internal/user/delivery/http"
 	"auth_sevice_microservice/pkg/database"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"gitlab.com/nevasik7/lg"
 	"net/http"
 )
@@ -29,6 +30,16 @@ func Run() error {
 
 	//
 	r := chi.NewRouter()
+
+	// CORS middleware
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", "https://your-frontend.com"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	http2.RegisterRoutes(r, db)
 
