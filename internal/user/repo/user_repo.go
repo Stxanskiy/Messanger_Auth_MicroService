@@ -18,11 +18,7 @@ func NewUserRepo(repo *pgxpool.Pool) *UserRepo {
 }
 
 func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) error {
-	query := `
-		INSERT INTO users (nickname, email, password_hash, created_at, updated_at)
-		VALUES ($1, $2, $3, NOW(), NOW())
-		RETURNING id;
-		`
+	query := QueryCreateUser
 
 	err := r.repo.QueryRow(ctx, query, user.Nickname, user.Email, user.PasswordHash).Scan(user.ID)
 	if err != nil {
@@ -35,7 +31,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) error {
 
 // Проверка уникальности NickName
 func (r *UserRepo) IsNicknameTaken(ctx context.Context, nickname string) (bool, error) {
-	query := `SELECT 1 FROM users WHERE nickname = $1 LIMIT 1;`
+	query := QueryIsNicknameTaken
 	row := r.repo.QueryRow(ctx, query, nickname)
 
 	var dummy int
@@ -49,7 +45,7 @@ func (r *UserRepo) IsNicknameTaken(ctx context.Context, nickname string) (bool, 
 }
 
 func (r *UserRepo) GetUserByNickname(ctx context.Context, nickname string) (*model.User, error) {
-	query := `SELECT id, nickname, password_hash FROM users WHERE nickname = $1;`
+	query := QueryGetUserByNickname
 
 	var user model.User
 	err := r.repo.QueryRow(ctx, query, nickname).Scan(&user.ID, &user.Nickname, &user.PasswordHash)
@@ -68,9 +64,7 @@ func (r *UserRepo) GetUserByNickname(ctx context.Context, nickname string) (*mod
 }
 
 func (r *UserRepo) SearchUserByNickname(ctx context.Context, nickname string) ([]*model.User, error) {
-	query := `  select id,  nickname, created_at 
-				from users 
-				where nickname ILIKE $1 `
+	query := QuerySearchUserByNickname
 
 	rows, err := r.repo.Query(ctx, query, "%"+nickname+"%")
 	if err != nil {

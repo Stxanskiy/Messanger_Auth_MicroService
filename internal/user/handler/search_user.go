@@ -23,27 +23,31 @@ type UserDTO struct {
 
 func SearchUserHandler(uc *uc.SearchUsersUC) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req SearchRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "Не получилось найти пользоваеля", http.StatusBadRequest)
-			lg.Error(err)
+		// Считываем параметр из URL: /users/search?nickname=john
+		nickname := r.URL.Query().Get("nickname")
+		if nickname == "" {
+			http.Error(w, "nickname param is required", http.StatusBadRequest)
 			return
 		}
-		users, err := uc.Search(r.Context(), req.Nickname)
+
+		users, err := uc.Search(r.Context(), nickname)
 		if err != nil {
 			lg.Error(err)
-			http.Error(w, "Не Удалось найти пользоателя", http.StatusInternalServerError)
+			http.Error(w, "Не удалось найти пользователя", http.StatusInternalServerError)
 			return
 		}
-		var response SearchResponse
+
+		// Формируем ответ
+		var resp SearchResponse
 		for _, user := range users {
-			response.User = append(response.User, UserDTO{
+			resp.User = append(resp.User, UserDTO{
 				ID:         user.ID,
 				Nicknmae:   user.Nickname,
 				Created_at: user.CreatedAt.Format("2006-01-02 15:04:05"),
 			})
 		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		json.NewEncoder(w).Encode(resp)
 	}
 }

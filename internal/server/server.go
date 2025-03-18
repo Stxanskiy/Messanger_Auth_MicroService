@@ -33,7 +33,7 @@ func Run() error {
 
 	// CORS middleware
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "https://your-frontend.com"},
+		AllowedOrigins:   []string{"http://localhost:3000", "socks4://199.58.184.97:4145", "socks4://192.111.139.163:19404", "socks4://199.187.210.54:4145"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
